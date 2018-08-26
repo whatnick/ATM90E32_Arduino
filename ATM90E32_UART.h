@@ -13,8 +13,8 @@ The MIT License (MIT)
  
 #ifndef ATM90E32_h
 #define ATM90E32_h
+
 #include <Arduino.h>
-#include <SPI.h>
 
 #define WRITE 0 // WRITE SPI
 #define READ 1 	// READ SPI
@@ -239,10 +239,10 @@ The MIT License (MIT)
 	class ATM90E32
 	{
 	private:
-		int _energy_CS;		
+		Stream* ATM_UART;	
 		unsigned short CommEnergyIC(unsigned char RW, unsigned short address, unsigned short val);
 	public:
-		ATM90E32(int pin);
+		ATM90E32(Stream* UART);
 
 		/* Initialization Functions */	
 		void begin();

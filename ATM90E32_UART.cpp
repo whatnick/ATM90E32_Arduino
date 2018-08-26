@@ -13,103 +13,76 @@ The MIT License (MIT)
 
 #include "ATM90E32.h"
 
-ATM90E32::ATM90E32(int pin) 	// Object
+ATM90E32::ATM90E32(Stream* UART) 	// Object
 {
-  //energy_IRQ = 2; 	// (In development...)
-  _energy_CS = pin; 	// SS PIN
-  //energy_WO = 8; 		// (In development...)
+	ATM_UART = UART;
 }
 
 /* CommEnergyIC - Communication Establishment */
 /*
 - Defines Register Mask
-- Treats the Register and SPI Comms
+- Treats the Register and UART Comms
 - Outputs the required value in the register
 */
 unsigned short ATM90E32::CommEnergyIC(unsigned char RW, unsigned short address, unsigned short val) 
 {
-  unsigned char* data = (unsigned char*)&val;
-  unsigned char* adata = (unsigned char*)&address;
   unsigned short output;
-  unsigned short address1;
+  //Set read write flag
+  address|=RW<<7;
 
-  // Slows the SPI interface to communicate
-#if !defined(ENERGIA) && !defined(ESP8266) && !defined(ARDUINO_ARCH_SAMD)
-  SPISettings settings(200000, MSBFIRST, SPI_MODE0);
-#endif
-
-#if defined(ESP8266)
-  SPISettings settings(200000, MSBFIRST, SPI_MODE2);
-#endif
-
-#if defined(ARDUINO_ARCH_SAMD)
-  SPISettings settings(200000, MSBFIRST, SPI_MODE3);
-#endif
-
-  // Switch MSB and LSB of value
-  output = (val >> 8) | (val << 8);
-  val = output;
-
-  // Set R/W flag
-  address |= RW << 15;
-
-  // Swap byte address
-  address1 = (address >> 8) | (address << 8);
-  address = address1;
-
-  // Transmit & Receive Data
-#if !defined(ENERGIA)
-  SPI.beginTransaction(settings);
-#endif
-
-  // Chip enable and wait for SPI activation
-  digitalWrite (_energy_CS, LOW);
-  delayMicroseconds(10);
-
-  // Write address byte by byte
-  for (byte i=0; i<2; i++)
+  byte host_chksum = address;
+  if(!RW)
   {
-    SPI.transfer (*adata);
-    adata++;
+    unsigned short chksum_short = (val>>8) + (val&0xFF) + address;
+    host_chksum = chksum_short & 0xFF;
   }
 
-  // SPI.transfer16(address);
-  /* Must wait 4 us for data to become valid */
-  delayMicroseconds(4);
-
-  // READ Data
-  // Do for each byte in transfer
-  if (RW)
+  //begin UART command
+  ATM_UART->write(0xFE);
+  ATM_UART->write(address);
+  
+  if(!RW)
   {
-	for (byte i=0; i<2; i++)
+      byte MSBWrite = val>>8;
+      byte LSBWrite = val&0xFF;
+      ATM_UART->write(MSBWrite);
+      ATM_UART->write(LSBWrite);
+  }
+  ATM_UART->write(host_chksum);
+  #if defined(ESP32)
+  delay(40); //Somehow, Arduino framework for ESP32 needs this delay
+  #else
+  delay(10);
+  #endif
+
+  //Read register only
+  if(RW)
+  {
+    byte MSByte = ATM_UART->read();
+    byte LSByte = ATM_UART->read();
+    byte atm90_chksum = ATM_UART->read();
+  
+    if(atm90_chksum == ((LSByte + MSByte) & 0xFF))
     {
-      *data = SPI.transfer (0x00);
-      data++;
+      output=(MSByte << 8) | LSByte; //join MSB and LSB;
+      return output;
     }
-    //val = SPI.transfer16(0x00);
+    Serial.println("Read failed");
+    delay(20); // Delay from failed transaction
+    return 0xFFFF;
   }
+
+  //Write register only
   else
   {
-	for (byte i=0; i<2; i++)
+    byte atm90_chksum = ATM_UART->read();
+    if(atm90_chksum != host_chksum)
     {
-      SPI.transfer(*data);
-      data++;
+      Serial.println("Write failed");
+      delay(20); // Delay from failed transaction
     }
-    // SPI.transfer16(val);
   }
-
-  // Chip enable and wait for transaction to end
-  digitalWrite(_energy_CS, HIGH);
-  delayMicroseconds(10);
-#if !defined(ENERGIA)
-  SPI.endTransaction();
-#endif
-
-  output = (val >> 8) | (val << 8); // reverse MSB and LSB
-  return output;
-
-  // Use with transfer16
-  // return val;
+  return 0xFFFF;
 }
 
 /* Parameters Functions*/
@@ -394,7 +367,7 @@ bool ATM90E32::calibrationError()
     CS3 = false;
   }
 
-//#ifdef DEBUG_SERIAL
+#ifdef DEBUG_SERIAL
     Serial.print("Checksum 0: ");
     Serial.println(CS0);
     Serial.print("Checksum 1: ");
@@ -403,34 +376,22 @@ bool ATM90E32::calibrationError()
     Serial.println(CS2);
     Serial.print("Checksum 3: ");
     Serial.println(CS3);
-//#endif
+#endif
 
   if (CS0 || CS1 || CS2 || CS3) return (true); 
   else return (false);
 
 }
 
-/* BEGIN FUNCTION */
-/* 
-- Define the pin to be used as Chip Select
-- Set serialFlag to true for serial debugging
-- Use SPI MODE 0 for the ATM90E32
+/*
+Initialise Energy IC, assume UART has already began in the main code
 */
+
 void ATM90E32::begin()
 {  
-  // pinMode(energy_IRQ, INPUT); // (In development...)
-  pinMode(_energy_CS, OUTPUT);
-  // pinMode(energy_WO, INPUT);  // (In development...)
-
-  /* Enable SPI */
-  SPI.begin();
-#if defined(ESP32)
-  SPI.setBitOrder(MSBFIRST);
-  SPI.setDataMode(SPI_MODE0);
-  SPI.setClockDivider(SPI_CLOCK_DIV16);
-#endif
 
   CommEnergyIC(WRITE, SoftReset, 0x789A);   // Perform soft reset
+  //these do not exist on ATM90E32
   //CommEnergyIC(WRITE, FuncEn0, 0x0000);     // Voltage sag
   //CommEnergyIC(WRITE, FuncEn1, 0x0000);     // Voltage sag
   CommEnergyIC(WRITE, SagTh, 0x0001);       // Voltage sag threshold
@@ -491,9 +452,9 @@ void ATM90E32::begin()
   CommEnergyIC(WRITE, CalStart, 0x5678);    // 0x6886 //0x5678 //8765);
   CommEnergyIC(WRITE, HarmStart, 0x5678);   // 0x6886 //0x5678 //8765);    
   CommEnergyIC(WRITE, AdjStart, 0x5678);    // 0x6886 //0x5678 //8765);  
-*/
 
   CommEnergyIC(WRITE, SoftReset, 0x789A);   // Perform soft reset  
+  */
   
-  CommEnergyIC(WRITE, MeterEn, 0x0001); 		// Enable Metering
+  CommEnergyIC(WRITE, MeterEn, 0x0001); 	// Enable Metering
 }
