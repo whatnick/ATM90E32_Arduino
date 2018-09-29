@@ -236,13 +236,17 @@ The MIT License (MIT)
 #define UangleB 0xFE		// B Voltage Phase Angle
 #define UangleC 0xFF		// C Voltage Phase Angle
 
-	class ATM90E32
+class ATM90E32
 	{
-	private:
-		int _energy_CS;		
+	private:		
 		unsigned short CommEnergyIC(unsigned char RW, unsigned short address, unsigned short val);
+		int _cs;
+		unsigned short _lgain;
+		unsigned short _ugain;
+		unsigned short _igainA;
+		unsigned short _igainC;
 	public:
-		ATM90E32(int pin);
+		ATM90E32(int pin, unsigned short lgain, unsigned short ugain, unsigned short igainA, unsigned short igainC);
 
 		/* Initialization Functions */	
 		void begin();
