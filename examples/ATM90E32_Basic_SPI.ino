@@ -13,8 +13,45 @@
 #include <SPI.h>
 #include <ATM90E32_SPI.h>
 
-ATM90E32 eic(16); //set CS pin
+/***** CALIBRATION SETTINGS *****/
+unsigned short LineGain = 7481; //0x1D39 
+unsigned short VoltageGain = 32428; //0x7EAC - default value is for a 12v AC Transformer
+unsigned short CurrentGainCT1 = 46539; //0xB5CB - 
+unsigned short CurrentGainCT2 = 46539; //0xB5CB - 
 
+#if defined ESP8266
+const int CS_pin = 16;
+/*
+  D5/14 - CLK
+  D6/12 - MISO
+  D7/13 - MOSI
+*/
+#elif defined ESP32
+const int CS_pin = 5;
+/*
+  18 - CLK
+  19 - MISO
+  23 - MOSI
+*/
+
+#elif defined ARDUINO_ESP8266_WEMOS_D1MINI  // WeMos mini and D1 R2
+const int CS_pin = D8; // WEMOS SS pin
+
+#elif defined ARDUINO_ESP8266_ESP12  // Adafruit Huzzah
+const int CS_pin = 15; // HUZZAH SS pins ( 0 or 15)
+
+#elif defined ARDUINO_ARCH_SAMD || defined __AVR_ATmega32U4__ //M0 board || 32u4 SS pin
+const int CS_pin = 10; 
+
+#else
+const int CS_pin = SS; // Use default SS pin for unknown Arduino
+#endif
+
+ATM90E32 eic(CS_pin, LineGain, VoltageGain, CurrentGainCT1, CurrentGainCT2); //pass CS pin and calibrations to ATM90E32 library
+
+// -------------------------------------------------------------------
+// SETUP
+// -------------------------------------------------------------------
 void setup() {
   /* Initialize the serial port to host */
   Serial.begin(115200);
