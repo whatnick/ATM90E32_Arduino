@@ -458,7 +458,7 @@ void ATM90E32::begin()
   
   //Set metering config values (CONFIG)
   CommEnergyIC(WRITE, PLconstH, 0x0861);    // PL Constant MSB (default)
-  CommEnergyIC(WRITE, PLconstL, 0x4C68);    // PL Constant LSB (default)
+  CommEnergyIC(WRITE, PLconstL, 0xC468);    // PL Constant LSB (default)
   CommEnergyIC(WRITE, MMode0, 0x1185);      // Mode Config (60 Hz, 3P3W, phase B not counted)
   CommEnergyIC(WRITE, MMode1, 0x5555);      // PGA Gain Config - 0x5555 (x2) // 0x0000 (1x)
   CommEnergyIC(WRITE, PStartTh, 0x0AFC);    // Active Startup Power Threshold - 50% of startup current = 0.9/0.00032 = 2812.5
