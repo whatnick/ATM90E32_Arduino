@@ -159,8 +159,8 @@ The MIT License (MIT)
 #define ANenergyCH 0xAF  	// C Reverse Harm. Energy
 
 /* POWER & P.F. REGISTERS */
-#define PmeanT 0xB0 		// Total Mean Power (P)
 #define PmeanA 0xB1 		// A Mean Power (P)
+#define PmeanT 0xB0 		// Total Mean Power (P)
 #define PmeanB 0xB2 		// B Mean Power (P)
 #define PmeanC 0xB3 		// C Mean Power (P)
 #define QmeanT 0xB4 		// Total Mean Power (Q)
@@ -261,7 +261,8 @@ class ATM90E32
 		/* Initialization Functions */	
 		void begin();
 		
-		double CalculateVIOffset(unsigned short regh_addr, unsigned short regl_addr, unsigned short offset_reg);
+		double CalculateVIOffset(unsigned short regh_addr, unsigned short regl_addr/*, unsigned short offset_reg*/);
+		double CalculatePowerOffset(unsigned short regh_addr, unsigned short regl_addr/*, unsigned short offset_reg*/);
 		double CalibrateVI(unsigned short reg, unsigned short actualVal);
 		
 		/* Main Electrical Parameters (GET)*/
@@ -306,7 +307,7 @@ class ATM90E32
 		double GetTemperature();
 
 		/* Gain Parameters (GET)*/
-		unsigned short GetValueRegister(unsigned short registerRead);
+		double GetValueRegister(unsigned short registerRead);
 
 		/* Energy Consumption */
 		double GetImportEnergy();
