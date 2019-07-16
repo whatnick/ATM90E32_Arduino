@@ -35,7 +35,7 @@ unsigned short ATM90E32::CommEnergyIC(unsigned char RW, unsigned short address, 
   unsigned short output;
   unsigned short address1;
 
-  //SPI interface rate is 200 to 160k bps. It Will need to be slowed down for EnergyIC
+  //SPI interface rate is 200 to 160k bps. It will need to be slowed down for EnergyIC
 #if !defined(ENERGIA) && !defined(ESP8266) && !defined(ESP32) && !defined(ARDUINO_ARCH_SAMD)
   SPISettings settings(200000, MSBFIRST, SPI_MODE0);
 #endif
@@ -139,8 +139,9 @@ int ATM90E32::Read32Register(signed short regh_addr, signed short regl_addr) {
 }
 
 double ATM90E32::CalculateVIOffset(unsigned short regh_addr, unsigned short regl_addr /*, unsigned short offset_reg*/) {
-//for getting the lower registers of energy and calculating the offset
-//this should only be run when all inputs are disconnected
+//for getting the lower registers of Voltage and Current and calculating the offset
+//should only be run when CT sensors are connected to the meter,
+//but not connected around wires
   uint32_t val, val_h, val_l;
   uint16_t offset;
   val_h = CommEnergyIC(READ, regh_addr, 0xFFFF);
@@ -149,7 +150,7 @@ double ATM90E32::CalculateVIOffset(unsigned short regh_addr, unsigned short regl
 
   val = val_h << 16; //move high register up 16 bits
   val |= val_l; //concatenate the 2 registers to make 1 32 bit number
-  val = val >> 7; //right shift 7 bits - lowest 7 get ignored
+  val = val >> 7; //right shift 7 bits - lowest 7 get ignored - V & I registers need this
   val = (~val) + 1; //2s compliment
   
   offset = val; //keep lower 16 bits
@@ -580,7 +581,7 @@ void ATM90E32::begin(int pin, unsigned short lineFreq, unsigned short pgagain, u
   CommEnergyIC(WRITE, SStartTh, 0x0AEC);    // All phase Apparent Startup Power Threshold
   CommEnergyIC(WRITE, PPhaseTh, 0x00BC);    // Each phase Active Phase Threshold = 10% of startup current = 0.06W/0.00032 = 187.5
   CommEnergyIC(WRITE, QPhaseTh, 0x0000);    // Each phase Reactive Phase Threshold
-  CommEnergyIC(WRITE, SPhaseTh, 0x00BC);    // Each phase Apparent  Phase Threshold
+  CommEnergyIC(WRITE, SPhaseTh, 0x00BC);    // Each phase Apparent Phase Threshold
 
   //Set metering calibration values (CALIBRATION)
   CommEnergyIC(WRITE, PQGainA, 0x0000);     // Line calibration gain
@@ -589,17 +590,17 @@ void ATM90E32::begin(int pin, unsigned short lineFreq, unsigned short pgagain, u
   CommEnergyIC(WRITE, PhiB, 0x0032);        // Line calibration angle
   CommEnergyIC(WRITE, PQGainC, 0x0000);     // Line calibration gain
   CommEnergyIC(WRITE, PhiC, 0x0032);        // Line calibration angle
-  CommEnergyIC(WRITE, PoffsetA, 0xFFDC);    // A line active power offset
-  CommEnergyIC(WRITE, QoffsetA, 0xFFDC);    // A line reactive power offset
-  CommEnergyIC(WRITE, PoffsetB, 0xFFDC);    // B line active power offset
-  CommEnergyIC(WRITE, QoffsetB, 0xFFDC);    // B line reactive power offset
-  CommEnergyIC(WRITE, PoffsetC, 0xFFDC);    // C line active power offset
-  CommEnergyIC(WRITE, QoffsetC, 0xFFDC);    // C line reactive power offset
+  CommEnergyIC(WRITE, PoffsetA, 0x0000);    // A line active power offset FFDC
+  CommEnergyIC(WRITE, QoffsetA, 0x0000);    // A line reactive power offset
+  CommEnergyIC(WRITE, PoffsetB, 0x0000);    // B line active power offset
+  CommEnergyIC(WRITE, QoffsetB, 0x0000);    // B line reactive power offset
+  CommEnergyIC(WRITE, PoffsetC, 0x0000);    // C line active power offset
+  CommEnergyIC(WRITE, QoffsetC, 0x0000);    // C line reactive power offset
 
   //Set metering calibration values (HARMONIC)
-  CommEnergyIC(WRITE, POffsetAF, 0xFFDC);   // A Fund. active power offset
-  CommEnergyIC(WRITE, POffsetBF, 0xFFDC);   // B Fund. active power offset
-  CommEnergyIC(WRITE, POffsetCF, 0xFFDC);   // C Fund. active power offset
+  CommEnergyIC(WRITE, POffsetAF, 0x0000);   // A Fund. active power offset
+  CommEnergyIC(WRITE, POffsetBF, 0x0000);   // B Fund. active power offset
+  CommEnergyIC(WRITE, POffsetCF, 0x0000);   // C Fund. active power offset
   CommEnergyIC(WRITE, PGainAF, 0x0000);     // A Fund. active power gain
   CommEnergyIC(WRITE, PGainBF, 0x0000);     // B Fund. active power gain
   CommEnergyIC(WRITE, PGainCF, 0x0000);     // C Fund. active power gain
@@ -607,16 +608,16 @@ void ATM90E32::begin(int pin, unsigned short lineFreq, unsigned short pgagain, u
   //Set measurement calibration values (ADJUST)
   CommEnergyIC(WRITE, UgainA, _ugain);      // A Voltage rms gain
   CommEnergyIC(WRITE, IgainA, _igainA);      // A line current gain
-  CommEnergyIC(WRITE, UoffsetA, 0x61A8);    // A Voltage offset
-  CommEnergyIC(WRITE, IoffsetA, 0xFC60);    // A line current offset
+  CommEnergyIC(WRITE, UoffsetA, 0x0000);    // A Voltage offset - 61A8
+  CommEnergyIC(WRITE, IoffsetA, 0x0000);    // A line current offset - FC60
   CommEnergyIC(WRITE, UgainB, _ugain);      // B Voltage rms gain
   CommEnergyIC(WRITE, IgainB, _igainB);      // B line current gain
-  CommEnergyIC(WRITE, UoffsetB, 0x1D4C);    // B Voltage offset
-  CommEnergyIC(WRITE, IoffsetB, 0xFC60);    // B line current offset
+  CommEnergyIC(WRITE, UoffsetB, 0x0000);    // B Voltage offset - 1D4C
+  CommEnergyIC(WRITE, IoffsetB, 0x0000);    // B line current offset - FC60
   CommEnergyIC(WRITE, UgainC, _ugain);      // C Voltage rms gain
   CommEnergyIC(WRITE, IgainC, _igainC);      // C line current gain
-  CommEnergyIC(WRITE, UoffsetC, 0x1D4C);    // C Voltage offset
-  CommEnergyIC(WRITE, IoffsetC, 0xFC60);    // C line current offset
+  CommEnergyIC(WRITE, UoffsetC, 0x0000);    // C Voltage offset - 1D4C
+  CommEnergyIC(WRITE, IoffsetC, 0x0000);    // C line current offset
 
   CommEnergyIC(WRITE, CfgRegAccEn, 0x0000); // end configuration
 }
