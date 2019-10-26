@@ -5,16 +5,17 @@ This library powers the [CircuitSetup Split Single Phase Energy Meter](https://g
 ## Use
 
 ### Setup 
+```cpp
 #include <ATM90E32.h>
 ATM90E32 energy_meter{};
 
 void setup() {
    energy_meter.begin(CS_pin, lineFreq, PGAGain, VoltageGain1, CurrentGainCT1, CurrentGainCT2, CurrentGainCT3);
 }
-
+```
 ### Getting Basic Power Data
-A basic loop to get basic power data: 
-
+A loop to get basic power data: 
+```cpp
 void loop() {
     voltage1 = energy_meter.GetLineVoltageA();
     voltage2 = energy_meter.GetLineVoltageB();
@@ -29,7 +30,7 @@ void loop() {
     watts3 = energy_meter.GetActivePowerC();
     totalWatts = energy_meter.GetTotalActivePower();
 }
-
+```
 ### Getting Metering Values
 The following are other functions for other metering data that the ATM90E32 calculates.
 - GetReactivePowerA()
