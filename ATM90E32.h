@@ -254,7 +254,6 @@ class ATM90E32
 		
 		int Read32Register(signed short regh_addr, signed short regl_addr);
 		
-
 	public:
 		/* Construct */
 		ATM90E32(void);
@@ -318,7 +317,6 @@ class ATM90E32
 		double GetImportApparentEnergy();
 		double GetExportEnergy();
 		double GetExportReactiveEnergy();
-		
 
 		/* System Status */
 		unsigned short GetSysStatus0();

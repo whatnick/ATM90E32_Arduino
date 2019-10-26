@@ -93,7 +93,6 @@ unsigned short ATM90E32::CommEnergyIC(unsigned char RW, unsigned short address, 
       *data = SPI.transfer (0x00);
       data++;
     }
-    //val = SPI.transfer16(0x00);
   }
   else
   {
@@ -102,7 +101,6 @@ unsigned short ATM90E32::CommEnergyIC(unsigned char RW, unsigned short address, 
       SPI.transfer(*data);
       data++;
     }
-    // SPI.transfer16(val);
   }
 
   // Chip enable and wait for transaction to end
@@ -114,9 +112,6 @@ unsigned short ATM90E32::CommEnergyIC(unsigned char RW, unsigned short address, 
 
   output = (val >> 8) | (val << 8); // reverse MSB and LSB
   return output;
-
-  // Use with transfer16
-  // return val;
 }
 
 int ATM90E32::Read32Register(signed short regh_addr, signed short regl_addr) {
@@ -127,15 +122,8 @@ int ATM90E32::Read32Register(signed short regh_addr, signed short regl_addr) {
 
   val = val_h << 16;
   val |= val_l; //concatenate the 2 registers to make 1 32 bit number
-  
-  /*
-  // returns positive value if negative
-  if ((val & 0x80000000) != 0) { 
-		val = (~val) + 1; //2s compliment
-  }
-  */
+
   return (val);
-  
 }
 
 double ATM90E32::CalculateVIOffset(unsigned short regh_addr, unsigned short regl_addr /*, unsigned short offset_reg*/) {
@@ -585,11 +573,11 @@ void ATM90E32::begin(int pin, unsigned short lineFreq, unsigned short pgagain, u
 
   //Set metering calibration values (CALIBRATION)
   CommEnergyIC(WRITE, PQGainA, 0x0000);     // Line calibration gain
-  CommEnergyIC(WRITE, PhiA, 0x0032);        // Line calibration angle - accounts for a ~2.5 degree error from 9V AC transformer
+  CommEnergyIC(WRITE, PhiA, 0x0000);        // Line calibration angle
   CommEnergyIC(WRITE, PQGainB, 0x0000);     // Line calibration gain
-  CommEnergyIC(WRITE, PhiB, 0x0032);        // Line calibration angle
+  CommEnergyIC(WRITE, PhiB, 0x0000);        // Line calibration angle
   CommEnergyIC(WRITE, PQGainC, 0x0000);     // Line calibration gain
-  CommEnergyIC(WRITE, PhiC, 0x0032);        // Line calibration angle
+  CommEnergyIC(WRITE, PhiC, 0x0000);        // Line calibration angle
   CommEnergyIC(WRITE, PoffsetA, 0x0000);    // A line active power offset FFDC
   CommEnergyIC(WRITE, QoffsetA, 0x0000);    // A line reactive power offset
   CommEnergyIC(WRITE, PoffsetB, 0x0000);    // B line active power offset
