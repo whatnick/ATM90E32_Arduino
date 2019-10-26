@@ -10,7 +10,7 @@ This library powers the [CircuitSetup Split Single Phase Energy Meter](https://g
 ATM90E32 energy_meter{};
 
 void setup() {
-   energy_meter.begin(CS_pin, lineFreq, PGAGain, VoltageGain1, CurrentGainCT1, CurrentGainCT2, CurrentGainCT3);
+   energy_meter.begin(CS_pin, lineFreq, PGAGain, VoltageGain, CurrentGainCT1, CurrentGainCT2, CurrentGainCT3);
 }
 ```
 ### Getting Basic Power Data
