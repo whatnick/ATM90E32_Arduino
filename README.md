@@ -48,10 +48,10 @@ The following are other functions for other metering data that the ATM90E32 calc
 - GetPhaseA() //phase angle
 - GetPhaseB()
 - GetPhaseC()
-- GetFrequency() //voltage frequency
-- GetTemperature() //chip temperature
 - GetTotalActiveFundPower()
 - GetTotalActiveHarPower()
+- GetFrequency() //voltage frequency
+- GetTemperature() //chip temperature
 
 ### Getting Energy Over Time
 The following functions get data from the ATM90E32 that is converted to kWh
