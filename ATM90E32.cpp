@@ -320,34 +320,18 @@ double ATM90E32::GetFrequency() {
 // POWER FACTOR
 double ATM90E32::GetPowerFactorA() {
   signed short pf = (signed short) CommEnergyIC(READ, PFmeanA, 0xFFFF);
-  //if negative
-  if (pf & 0x8000 != 0) {
-	pf = (~pf) + 1;
-  }
   return (double)pf / 1000;
 }
 double ATM90E32::GetPowerFactorB() {
   signed short pf = (signed short) CommEnergyIC(READ, PFmeanB, 0xFFFF);
-  //if negative
-  if (pf & 0x8000 != 0) {
-	pf = (~pf) + 1;
-  }
   return (double)pf / 1000;
 }
 double ATM90E32::GetPowerFactorC() {
   signed short pf = (signed short) CommEnergyIC(READ, PFmeanC, 0xFFFF);
-  //if negative
-  if (pf & 0x8000 != 0) {
-	pf = (~pf) + 1;
-  }
   return (double)pf / 1000;
 }
 double ATM90E32::GetTotalPowerFactor() {
   signed short pf = (signed short) CommEnergyIC(READ, PFmeanT, 0xFFFF);
-  //if negative
-  if (pf & 0x8000 != 0) {
-	pf = (~pf) + 1;
-  }
   return (double)pf / 1000;
 }
 
