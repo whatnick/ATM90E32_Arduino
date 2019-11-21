@@ -323,8 +323,5 @@ class ATM90E32
 		unsigned short GetSysStatus1();
 		unsigned short GetMeterStatus0();
 		unsigned short GetMeterStatus1();
-
-		/* Checksum Function */
-		bool calibrationError();
 	};
 #endif
