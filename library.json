@@ -1,7 +1,7 @@
 {
   "name": "ATM90E32",
-  "keywords": "energy meter, circuitsetup",
-  "description": "Arduino library for energy meters that use the ATM90E32 IC from Microchip/Atmel",
+  "keywords": "energy meter, circuitsetup, spi, sensor, iot",
+  "description": "Arduino library for energy meters that use the ATM90E32AS IC from Microchip/Atmel",
   "repository": {
     "type": "git",
     "url": "https://github.com/CircuitSetup/ATM90E32.git"
