@@ -41,7 +41,7 @@ unsigned short ATM90E32::CommEnergyIC(unsigned char RW, unsigned short address, 
 #endif
 
 #if defined(ESP8266)
-  SPISettings settings(200000, MSBFIRST, SPI_MODE2);
+  SPISettings settings(200000, MSBFIRST, SPI_MODE1);
 #endif
 
 #if defined(ESP32)
@@ -443,7 +443,7 @@ void ATM90E32::begin(int pin, unsigned short lineFreq, unsigned short pgagain, u
 
   /* Enable SPI */
   SPI.begin();
-
+  
   Serial.println("Connecting to ATM90E32");
 #if defined(ENERGIA)
   SPI.setBitOrder(MSBFIRST);
@@ -457,7 +457,7 @@ void ATM90E32::begin(int pin, unsigned short lineFreq, unsigned short pgagain, u
   unsigned short sagV;
   unsigned short FreqHiThresh;
   unsigned short FreqLoThresh;
-  if (_lineFreq == 4485 || _lineFreq == 5231)
+  if (_lineFreq == 4485 || _lineFreq == 4231)
   {
     sagV = 90;
     FreqHiThresh = 61 * 100;
